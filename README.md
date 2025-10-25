@@ -82,15 +82,23 @@ Steps executed automatically:
 
 Project Structure
 
-Wuzzwf-Data-Analysis/
-│
-├── scrap.py             # Scraping functions
-├── dataclean.py         # Data cleaning functions
-├── visualize.py         # Visualization functions
-├── main.py              # Main pipeline
-├── wuzzuf_jobs.csv      # Raw scraped data
-├── jobs_cleaned.csv     # Cleaned data
-└── charts/              # Generated visualizations
+Wuzzwf-Data-Analysis
+
+
+scrap.py     # Scraping functions
+
+dataclean.py  # Data cleaning functions
+
+visualizelize.py #Visualizationtion functions
+
+main.py       # Main pipeline
+
+wuzzuf_jobs.csv  # Raw scraped data
+
+ jobs_cleaned.csv   #Cleaned data
+
+ 
+charts/      # Generated visualizations
 
 
 ---
