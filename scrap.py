@@ -1,47 +1,75 @@
-#import modules
-
-import requests
-import csv
+from selenium import webdriver
 from bs4 import BeautifulSoup
-from itertools import zip_longest
+import time
+import csv
+
+def wuzzuf_scrap(pages=100):
+    browser = webdriver.Chrome()
+    wuzzuf_list = []
+
+    for page in range(pages):
+        url = f"https://wuzzuf.net/search/jobs/?a=hpb%7Cspbg&q=data%20analysis&start={page}"
+        browser.get(url)
+        time.sleep(5)
+
+        html = browser.page_source
+        soup = BeautifulSoup(html, "html.parser")
+
+        container_div = soup.find("div", class_="css-9i2afk")
+        if not container_div:
+            print(f"no data in {page}")
+            break
+
+        list_items = container_div.find_all("div", class_="css-ghe2tq e1v1l3u10")
+
+        for div in list_items:
+            jop_title = div.find("h2", class_="css-193uk2c")
+            company = div.find("a", class_="css-ipsyv7")
+            location = div.find("span", class_="css-16x61xq")
+            type_jop = div.find("span", class_="css-uc9rga eoyjyou0")
+        
+            wuzzuf_list.append({
+                "job_title": jop_title.text.strip() if jop_title else " ",
+                "company": company.text.strip() if company else " ",
+                "location": location.text.strip() if location else " ",
+                "type_jop": type_jop.text.strip() if type_jop else " "
+            })
+
+        print(f" done {page + 1}")
 
 
-job_title = []
-skills = []
-company_name = []
-locations_name = []
+    browser.quit()
 
-# fetching the url
-result = requests.get("https://wuzzuf.net/search/jobs?q=python")
+    with open("wuzzuf_jobs.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["job_title", "company", "location", "type_jop"])
+        writer.writeheader()
+        writer.writerows(wuzzuf_list)
 
-# saveing page content
-src = result.content
-# print(src)
+    print(f"\n Done {len(wuzzuf_list)} ")
 
-# createing the soup object
-soup = BeautifulSoup(src, "lxml")
-# print(soup)
-
-# find the elements containing info we need
-# job titles, job skills, company names, location names
-job_titles = soup.find_all("h2", {"class":"css-193uk2c"} )
-company_names = soup.find_all("a", {"class": "css-ipsyv7"} )
-locations_names = soup.find_all("span", {"class": "css-16x61xq"} )
-job_skills = soup.find_all("a", {"class": "css-5x9pm1"} )
-
-# loop over returned lists to extract needed info into other lists
-
-for i in range(len(job_titles)):
-    job_title.append(job_titles[i].text)
-    company_name.append(company_names[i].text)
-    skills.append(job_skills[i].text)
-    locations_name.append(locations_names[i].text)
+    return wuzzuf_list
 
 
-# create csv file and fill it with values
-file_list = [job_title, company_name, locations_name, skills]
-exported = zip_longest(*file_list)
-with open("/Users/mo761/Documents/jobstest.csv", "w") as myfile:
-    wr = csv.writer(myfile)
-    wr.writerow(["job_title", "company name", "location", "skils"])
-    wr.writerows(exported)
+
+if __name__ == "__main__":
+    data = wuzzuf_scrap(50)  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
